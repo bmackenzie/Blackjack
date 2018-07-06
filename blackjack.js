@@ -3,6 +3,9 @@ var playerHandValues = [];
 var playerHandDisplay = [];
 var dealerHandValues = [];
 var dealerHandDisplay = [];
+var images = ["2C", "2D", "2H", "2S", "3C", "3D", "3H", "3S", "4C", "4D", "4H", "4S", "5C", "5D", "5H", "5S", "6C", "6D", "6H",
+ "6S", "7C", "7D", "7H", "7S", "8C", "8D", "8H", "8S", "9C", "9D", "9H", "9S", "10C", "10D", "10H", "10S", "JC", "JD", "JH",
+  "JS", "QC", "QD", "QH", "QS", "KC", "KD", "KH", "KS", "AC", "AD", "AH", "AS"]
 var deck = [2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7, 7, 8, 8, 8, 8, 9, 9, 9, 9,
 10, 10, 10, 10, 'J', 'J', 'J', 'J', 'Q', 'Q', 'Q', 'Q', 'K', 'K', 'K', 'K', 'A', 'A', 'A', 'A'];
 
@@ -20,8 +23,15 @@ function delOneInstance(value, list){
 function deal(numberOfCards){
   count = 0
   while(count < numberOfCards){
-    var randomNumber = Math.floor(Math.random() * deck.length);
+    let randomNumber = Math.floor(Math.random() * deck.length);
     playerHandDisplay.push(deck[randomNumber]);
+
+    let image = "images/Cards/" + images[randomNumber] + ".jpg";
+    let location = "playerImage" + (playerHandDisplay.length).toString();
+    document.getElementById(location).src = image;
+    images.splice(randomNumber, 1);
+
+
 
     if (deck[randomNumber] == 'J' || deck[randomNumber] == 'Q' || deck[randomNumber] == 'K'){
       playerHandValues.push(10);
@@ -43,10 +53,12 @@ function deal(numberOfCards){
 
 /* adds cards to the dealers hand, sets one to be revealed, adds more until dealer score is at least 16 */
 function dealerDeal(){
-  var dealerTotal = 0;
+  let dealerTotal = 0;
   while(dealerTotal<16){
-    var randomNumber = Math.floor(Math.random() * deck.length);
+    let randomNumber = Math.floor(Math.random() * deck.length);
     dealerHandDisplay.push(deck[randomNumber]);
+
+    images.splice(randomNumber, 1);
 
     if (deck[randomNumber] == 'J' || deck[randomNumber] == 'Q' || deck[randomNumber] == 'K'){
       dealerHandValues.push(10);
@@ -77,7 +89,9 @@ function scoreTally(player){
   if (player == "player"){
     while(count<playerHandValues.length){
       playerScore += playerHandValues[count];
-      if(playerScore > 21 && playerHandDisplay.includes('A')){
+      if(playerScore > 21 && playerHandValues.includes(11)){
+        let aceLocation = playerHandValues.indexOf(11)
+        playerHandValues[aceLocation] -= 10;
         playerScore -= 10;
       }
       count++
@@ -113,7 +127,7 @@ function gameOver(){
 
 /* Begins the game, deals cards to player and dealer */
 function gameStart(){
-  deal(2);
+  deal(2, 0);
   dealerDeal();
   document.getElementById("play").disabled = true;
 }
@@ -124,6 +138,9 @@ function reset(){
   playerHandDisplay = [];
   dealerHandValues = [];
   dealerHandDisplay = [];
+  images = ["2C", "2D", "2H", "2S", "3C", "3D", "3H", "3S", "4C", "4D", "4H", "4S", "5C", "5D", "5H", "5S", "6C", "6D", "6H",
+            "6S", "7C", "7D", "7H", "7S", "8C", "8D", "8H", "8S", "9C", "9D", "9H", "9S", "10C", "10D", "10H", "10S", "JC", "JD", "JH",
+            "JS", "QC", "QD", "QH", "QS", "KC", "KD", "KH", "KS", "AC", "AD", "AH", "AS"]
   deck = [2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7, 7, 8, 8, 8, 8, 9, 9, 9, 9,
   10, 10, 10, 10, 'J', 'J', 'J', 'J', 'Q', 'Q', 'Q', 'Q', 'K', 'K', 'K', 'K', 'A', 'A', 'A', 'A'];
   document.getElementById("gameOverText").innerHTML = ("")
@@ -132,4 +149,9 @@ function reset(){
   document.getElementById("play").disabled = false;
   document.getElementById("stay").disabled = false;
   document.getElementById("hit").disabled = false;
+  for(i = 1; i <= 8; i++){
+    let location = "playerImage" + i.toString();
+    console.log(location);
+    document.getElementById(location).src = "";
+  }
 }
