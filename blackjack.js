@@ -48,8 +48,7 @@ function deal(numberOfCards){
     count ++
   }
 
-  /*Displays the cards in the players hand on the html page */
-  document.getElementById('playerHand').innerHTML = playerHandDisplay.join();
+  /*Calls function to check player score, ends game if it is over 21*/
   playerScore = scoreTally("player");
   if (playerScore > 21){
     gameOver();
@@ -67,6 +66,7 @@ function dealerDeal(){
     dealerHandDisplay.push(deck[randomNumber]);
 
       /* Displays dealer cards on html page as images.  First card is face down */
+
       if(dealerHandValues != 0){
         let card = "images/Cards/" + images[randomNumber] + ".jpg";
         let element = "dealerImage" + (dealerHandValues.length + 1).toString();
@@ -98,8 +98,7 @@ function dealerDeal(){
     delOneInstance(deck[randomNumber], deck);
   }
 
-  dealerCards = dealerHandDisplay.splice(1, dealerHandDisplay.length - 1);
-  document.getElementById("dealerHand").innerHTML = dealerCards;
+
 }
 
 /* Tally's and returns player or dealer score, calls bust if either is over 21 */
@@ -144,6 +143,13 @@ function gameOver(){
     document.getElementById("gameOverText").innerHTML = ("Your score is " + playerScore + ". The dealers score is " + dealerScore + ". You tie!");
   }
   document.getElementById("dealerImage1").src=dealerHiddenCard;
+
+  /*changes dealer cards beyond the first 2 from display:none to display:inline*/
+  for(i=3; i<=8; i++){
+    let location = "dealerImage" + i.toString();
+    document.getElementById(location).style.display = "inline";
+  }
+
   document.getElementById("hit").disabled = true;
   document.getElementById("stay").disabled = true;
 }
@@ -180,5 +186,10 @@ function reset(){
     let location = "dealerImage" + i.toString();
     console.log(location);
     document.getElementById(location).src = "";
+  }
+
+  for(i=3; i<=8; i++){
+    let location = "dealerImage" + i.toString();
+    document.getElementById(location).style.display = "none";
   }
 }
