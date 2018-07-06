@@ -1,13 +1,15 @@
 /* Sets necesarry beginning variables, for holding the players cards, dealers cards, and the cards in the deck */
-var playerHandValues = [];
-var playerHandDisplay = [];
-var dealerHandValues = [];
-var dealerHandDisplay = [];
-var images = ["2C", "2D", "2H", "2S", "3C", "3D", "3H", "3S", "4C", "4D", "4H", "4S", "5C", "5D", "5H", "5S", "6C", "6D", "6H",
+let playerHandValues = [];
+let playerHandDisplay = [];
+let dealerHandValues = [];
+let dealerHandDisplay = [];
+let dealerHiddenCard = [];
+let images = ["2C", "2D", "2H", "2S", "3C", "3D", "3H", "3S", "4C", "4D", "4H", "4S", "5C", "5D", "5H", "5S", "6C", "6D", "6H",
  "6S", "7C", "7D", "7H", "7S", "8C", "8D", "8H", "8S", "9C", "9D", "9H", "9S", "10C", "10D", "10H", "10S", "JC", "JD", "JH",
   "JS", "QC", "QD", "QH", "QS", "KC", "KD", "KH", "KS", "AC", "AD", "AH", "AS"]
-var deck = [2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7, 7, 8, 8, 8, 8, 9, 9, 9, 9,
+let deck = [2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7, 7, 8, 8, 8, 8, 9, 9, 9, 9,
 10, 10, 10, 10, 'J', 'J', 'J', 'J', 'Q', 'Q', 'Q', 'Q', 'K', 'K', 'K', 'K', 'A', 'A', 'A', 'A'];
+
 
 /* Removes the first item of a given value from an array, used for removing card from the deck */
 function delOneInstance(value, list){
@@ -26,13 +28,13 @@ function deal(numberOfCards){
     let randomNumber = Math.floor(Math.random() * deck.length);
     playerHandDisplay.push(deck[randomNumber]);
 
-    let image = "images/Cards/" + images[randomNumber] + ".jpg";
-    let location = "playerImage" + (playerHandDisplay.length).toString();
-    document.getElementById(location).src = image;
+    /*Sets card images to appear cooresponding to the players displayed hand, removes revealed cards from the images array */
+    let card = "images/Cards/" + images[randomNumber] + ".jpg";
+    let element = "playerImage" + (playerHandDisplay.length).toString();
+    document.getElementById(element).src = card;
     images.splice(randomNumber, 1);
 
-
-
+    /*Checks if players have face cards, converts them to their score value in the playerHandValues array */
     if (deck[randomNumber] == 'J' || deck[randomNumber] == 'Q' || deck[randomNumber] == 'K'){
       playerHandValues.push(10);
     } else if(deck[randomNumber] == 'A'){
@@ -41,14 +43,20 @@ function deal(numberOfCards){
       playerHandValues.push(deck[randomNumber]);
     }
 
+    /* Deletes the card that was drawn from the deck so it can't be drawn again */
     delOneInstance(deck[randomNumber], deck);
     count ++
   }
+
+  /*Displays the cards in the players hand on the html page */
   document.getElementById('playerHand').innerHTML = playerHandDisplay.join();
   playerScore = scoreTally("player");
   if (playerScore > 21){
     gameOver();
   }
+
+  document.getElementById("hit").disabled = false;
+  document.getElementById("stay").disabled = false;
 }
 
 /* adds cards to the dealers hand, sets one to be revealed, adds more until dealer score is at least 16 */
@@ -58,8 +66,19 @@ function dealerDeal(){
     let randomNumber = Math.floor(Math.random() * deck.length);
     dealerHandDisplay.push(deck[randomNumber]);
 
-    images.splice(randomNumber, 1);
+      /* Displays dealer cards on html page as images.  First card is face down */
+      if(dealerHandValues != 0){
+        let card = "images/Cards/" + images[randomNumber] + ".jpg";
+        let element = "dealerImage" + (dealerHandValues.length + 1).toString();
+        document.getElementById(element).src=card
+        images.splice(randomNumber, 1);}
+      else{
+            dealerHiddenCard = "images/Cards/" + images[randomNumber] + ".jpg";
+            images.splice(randomNumber, 1)
+          }
+      document.getElementById("dealerImage1").src="images/Cards/Gray_back.jpg";
 
+    /*Checks if dealer has face cards, converts them to their score value in the dealerHandValues array */
     if (deck[randomNumber] == 'J' || deck[randomNumber] == 'Q' || deck[randomNumber] == 'K'){
       dealerHandValues.push(10);
     } else if(deck[randomNumber] == 'A'){
@@ -68,16 +87,19 @@ function dealerDeal(){
       dealerHandValues.push(deck[randomNumber]);
     }
 
+    /*Adds up dealer score and stores in dealerTotal variable.  Checks if the dealer has an ace and it should be a 1*/
     dealerTotal += dealerHandValues[dealerHandValues.length - 1];
 
     if (dealerTotal > 21 && dealerHandValues[dealerHandValues.length - 1] == '11'){
       dealerTotal -=10;
 
     }
+    /*Deletes drawn cards from the deck*/
     delOneInstance(deck[randomNumber], deck);
   }
-  dealerCard = dealerHandDisplay[0];
-  document.getElementById("dealerHand").innerHTML = dealerCard;
+
+  dealerCards = dealerHandDisplay.splice(1, dealerHandDisplay.length - 1);
+  document.getElementById("dealerHand").innerHTML = dealerCards;
 }
 
 /* Tally's and returns player or dealer score, calls bust if either is over 21 */
@@ -121,6 +143,7 @@ function gameOver(){
   }else{
     document.getElementById("gameOverText").innerHTML = ("Your score is " + playerScore + ". The dealers score is " + dealerScore + ". You tie!");
   }
+  document.getElementById("dealerImage1").src=dealerHiddenCard;
   document.getElementById("hit").disabled = true;
   document.getElementById("stay").disabled = true;
 }
@@ -147,10 +170,14 @@ function reset(){
   document.getElementById("dealerHand").innerHTML = ("");
   document.getElementById('playerHand').innerHTML = ("");
   document.getElementById("play").disabled = false;
-  document.getElementById("stay").disabled = false;
-  document.getElementById("hit").disabled = false;
   for(i = 1; i <= 8; i++){
     let location = "playerImage" + i.toString();
+    console.log(location);
+    document.getElementById(location).src = "";
+  }
+
+  for(i = 1; i <= 8; i++){
+    let location = "dealerImage" + i.toString();
     console.log(location);
     document.getElementById(location).src = "";
   }
